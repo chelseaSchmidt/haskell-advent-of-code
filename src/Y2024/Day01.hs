@@ -2,37 +2,31 @@ module Y2024.Day01 where
 import ReadInputFile (readInputFileByName)
 import Control.Monad (join)
 import Data.List (partition, sort)
+import Data.Bifunctor (Bifunctor(bimap))
 
-type LocationMetadata = (Location, Bool)
-type Location = Int;
+data TypedTuple a = a :&: a
+type Location = Int
 
 printY2024Day01Part1 :: IO ()
 printY2024Day01Part1 = readInputFileByName "2024-01" >>= print
   . sum
   . map toDistance
   . zipLists
-  . toLocationLists
-  . partition isFromLeftList
+  . bimap sort sort
+  . parse
+  where
+    zipLists (a, b) = zipWith (:&:) a b
+    toDistance (a :&: b) = abs (a - b)
+
+parse :: String -> ([Location], [Location])
+parse = bimap (map fst) (map fst)
+  . partition snd
   . join
-  . map (toLocationMetadataPair . words)
+  . map (toLocationMetadataList . toWordPair . words)
   . lines
-
-toLocationMetadataPair :: [String] -> [LocationMetadata]
-toLocationMetadataPair [a, b] = [(read a, True), (read b, False)]
-toLocationMetadataPair _ = error "Aaah"
-
-isFromLeftList :: LocationMetadata -> Bool
-isFromLeftList (_, source) = source
-
-metadataToLocation :: LocationMetadata -> Location
-metadataToLocation (location, _) = location
-
-toLocationLists :: ([LocationMetadata], [LocationMetadata]) -> ([Location], [Location])
-toLocationLists (a, b) = (mapAndSort a, mapAndSort b)
-  where mapAndSort = sort . map metadataToLocation
-
-zipLists :: ([Location], [Location]) -> [(Location, Location)]
-zipLists (a, b) = zip a b
-
-toDistance :: (Location, Location) -> Int
-toDistance (a, b) = abs (a - b)
+  where
+    toWordPair [a, b] = a :&: b
+    toWordPair _ = error "Could not parse input"
+    isLeft = True
+    isRight = False
+    toLocationMetadataList (a :&: b) = [(read a, isLeft), (read b, isRight)]
