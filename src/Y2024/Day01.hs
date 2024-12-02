@@ -6,7 +6,6 @@ import Data.List (partition, sort)
 data (:&:) a = a :&: a
 type Location = Int
 type SimilarityScore = Int
-type SimilarityScores = [Int]
 type ScoredLocation = (Location, SimilarityScore)
 
 instance Functor (:&:) where
@@ -30,7 +29,7 @@ printY2024Day01Part2 = readInputFileByName "2024-01" >>= print
   . toSimilarityScores
   . parse
   where
-    toSimilarityScores :: (:&:) [Location] -> SimilarityScores
+    toSimilarityScores :: (:&:) [Location] -> [SimilarityScore]
     toSimilarityScores (leftList :&: rightList) = map (scoreSimilarity rightList) leftList
       where
         scoreSimilarity :: [Location] -> Location -> SimilarityScore
