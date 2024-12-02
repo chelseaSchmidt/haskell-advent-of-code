@@ -7,6 +7,7 @@ data (:&:) a = a :&: a
 type Location = Int
 type SimilarityScore = Int
 type ScoredLocation = (Location, SimilarityScore)
+data ListSide = Left' | Right' deriving (Eq)
 
 instance Functor (:&:) where
   fmap :: (a -> b) -> (:&:) a -> (:&:) b
@@ -38,14 +39,12 @@ printY2024Day01Part2 = readInputFileByName "2024-01" >>= print
 parse :: String -> (:&:) [Location]
 parse = fmap (map fst)
   . tupleToTypedPair
-  . partition snd
+  . partition ((==) Left' . snd)
   . join
   . map (toLocationMetadataList . toWordPair . words)
   . lines
   where
     toWordPair [a, b] = a :&: b
     toWordPair _ = error "Could not parse input"
-    isLeft = True
-    isRight = False
-    toLocationMetadataList (a :&: b) = [(read a, isLeft), (read b, isRight)]
+    toLocationMetadataList (a :&: b) = [(read a, Left'), (read b, Right')]
     tupleToTypedPair (a, b) = a :&: b
