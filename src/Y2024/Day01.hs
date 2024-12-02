@@ -36,9 +36,6 @@ printY2024Day01Part2 = readInputFileByName "2024-01" >>= print
         scoreSimilarity :: [Location] -> Location -> SimilarityScore
         scoreSimilarity rightLocations leftLoc = leftLoc * length (filter (== leftLoc) rightLocations)
 
-tupleToTypedPair :: (a, a) -> (:&:) a
-tupleToTypedPair (a, b) = a :&: b
-
 parse :: String -> (:&:) [Location]
 parse = fmap (map fst)
   . tupleToTypedPair
@@ -52,3 +49,4 @@ parse = fmap (map fst)
     isLeft = True
     isRight = False
     toLocationMetadataList (a :&: b) = [(read a, isLeft), (read b, isRight)]
+    tupleToTypedPair (a, b) = a :&: b
