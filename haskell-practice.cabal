@@ -62,7 +62,8 @@ library
                       Y2019.Day01,
                       Y2019.Day02,
                       Y2024.Day01,
-                      Y2024.Day02
+                      Y2024.Day02,
+                      Y2024.Day03
 
     -- Modules included in this library but not exported.
     -- other-modules:
