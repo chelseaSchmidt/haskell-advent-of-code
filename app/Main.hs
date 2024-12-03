@@ -13,4 +13,4 @@ main = do
   printY2024Day01Part1 -- 2375403
   printY2024Day01Part2 -- 23082277
   printY2024Day02Part1 -- 624
-  printY2024Day02Part2
+  printY2024Day02Part2 -- 658
