@@ -8,7 +8,7 @@ type UnparsedInt = String
 type PartialInstructions = [Instruction]
 type ValidInstructions = [Instruction]
 data Status = Enabled | Disabled deriving (Eq)
-data StatusOverride = AlwaysEnabled | NoOverride deriving (Eq)
+data Override = AlwaysEnabled | NoOverride deriving (Eq)
 
 printY2024Day03Part1 :: IO ()
 printY2024Day03Part1 = readInputFileByName "2024-03" >>= print . sum . map toProduct . parse AlwaysEnabled
@@ -16,34 +16,28 @@ printY2024Day03Part1 = readInputFileByName "2024-03" >>= print . sum . map toPro
 printY2024Day03Part2 :: IO ()
 printY2024Day03Part2 = readInputFileByName "2024-03" >>= print . sum . map toProduct . parse NoOverride
 
--- valid sequence: "m", "u", "l", "(", "\d+", "," "\d+", ")"
-parse :: StatusOverride -> CorruptInstructions -> ValidInstructions
+parse :: Override -> CorruptInstructions -> ValidInstructions
 parse = go [] Enabled
   where
-    go :: PartialInstructions -> Status -> StatusOverride -> CorruptInstructions -> ValidInstructions
-    go partialInst _ statusOverride ('d':'o':'(':')':cs) = go partialInst Enabled statusOverride cs
-    go partialInst _ statusOverride ('d':'o':'n':'\'':'t':'(':')':cs) = go partialInst Disabled statusOverride cs
-    go partialInst status statusOverride ('m':'u':'l':'(':cs) =
-      go
-        (if areIntsValid then partialInst ++ [(firstInt, secondInt)] else partialInst)
-        status
-        statusOverride
-        (if areIntsValid then remainingInstructions else cs)
+    go :: PartialInstructions -> Status -> Override -> CorruptInstructions -> ValidInstructions
+    go partialInst _ override ('d':'o':'(':')':cs) = go partialInst Enabled override cs
+    go partialInst _ override ('d':'o':'n':'\'':'t':'(':')':cs) = go partialInst Disabled override cs
+    go partialInst status override ('m':'u':'l':'(':cs)
+      | areIntsValid = go (partialInst ++ [(firstInt, secondInt)]) status override remainderAfterProcessing
+      | otherwise = go partialInst status override cs
       where
         firstInt = fst (parseInt cs)
-        theRest = snd (parseInt cs)
-        secondInt = fst (parseInt (drop 1 theRest))
-        theRestOfTheRest = snd (parseInt (drop 1 theRest))
-        maybeComma = if not (null theRest) then head theRest else 'x'
-        maybeParen = if not (null theRestOfTheRest) then head theRestOfTheRest else 'x'
-        remainingInstructions = drop 1 theRestOfTheRest
+        afterFirstInt = snd (parseInt cs)
+        secondInt = fst (parseInt (drop 1 afterFirstInt))
+        afterSecondInt = snd (parseInt (drop 1 afterFirstInt))
+        remainderAfterProcessing = drop 1 afterSecondInt
         areIntsValid =
-          (status == Enabled || statusOverride == AlwaysEnabled)
-          && maybeComma == ','
-          && maybeParen == ')'
+          (status == Enabled || override == AlwaysEnabled)
+          && take 1 afterFirstInt == ","
+          && take 1 afterSecondInt == ")"
           && not (null firstInt)
           && not (null secondInt)
-    go partialInst status statusOverride (_:cs) = go partialInst status statusOverride cs
+    go partialInst status override (_:cs) = go partialInst status override cs
     go partialInst _ _ _ = partialInst
 
 parseInt :: CorruptInstructions -> (UnparsedInt, CorruptInstructions)
