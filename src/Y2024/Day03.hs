@@ -5,7 +5,7 @@ type Instruction = (String, String)
 type CorruptInstructions = String
 type PartialInt = String
 type UnparsedInt = String
-type PartialInstructions = [Instruction]
+type AccumulatedInstructions = [Instruction]
 type ValidInstructions = [Instruction]
 data Status = Enabled | Disabled deriving (Eq)
 data Override = AlwaysEnabled | NoOverride deriving (Eq)
@@ -19,26 +19,26 @@ printY2024Day03Part2 = readInputFileByName "2024-03" >>= print . sum . map toPro
 parse :: Override -> CorruptInstructions -> ValidInstructions
 parse = go [] Enabled
   where
-    go :: PartialInstructions -> Status -> Override -> CorruptInstructions -> ValidInstructions
-    go partialInst _ override ('d':'o':'(':')':cs) = go partialInst Enabled override cs
-    go partialInst _ override ('d':'o':'n':'\'':'t':'(':')':cs) = go partialInst Disabled override cs
-    go partialInst status override ('m':'u':'l':'(':cs)
-      | areIntsValid = go (partialInst ++ [(firstInt, secondInt)]) status override remainderAfterProcessing
-      | otherwise = go partialInst status override cs
+    go :: AccumulatedInstructions -> Status -> Override -> CorruptInstructions -> ValidInstructions
+    go accum _ override ('d':'o':'(':')':cs) = go accum Enabled override cs
+    go accum _ override ('d':'o':'n':'\'':'t':'(':')':cs) = go accum Disabled override cs
+    go accum status override ('m':'u':'l':'(':cs)
+      | isInstructionValid = go ((firstInt, secondInt):accum) status override nextInstructions
+      | otherwise = go accum status override cs
       where
         firstInt = fst (parseInt cs)
-        afterFirstInt = snd (parseInt cs)
-        secondInt = fst (parseInt (drop 1 afterFirstInt))
-        afterSecondInt = snd (parseInt (drop 1 afterFirstInt))
-        remainderAfterProcessing = drop 1 afterSecondInt
-        areIntsValid =
+        charsAfterFirstInt = snd (parseInt cs)
+        secondInt = fst (parseInt (drop 1 charsAfterFirstInt))
+        charsAfterSecondInt = snd (parseInt (drop 1 charsAfterFirstInt))
+        nextInstructions = drop 1 charsAfterSecondInt
+        isInstructionValid =
           (status == Enabled || override == AlwaysEnabled)
-          && take 1 afterFirstInt == ","
-          && take 1 afterSecondInt == ")"
+          && take 1 charsAfterFirstInt == ","
+          && take 1 charsAfterSecondInt == ")"
           && not (null firstInt)
           && not (null secondInt)
-    go partialInst status override (_:cs) = go partialInst status override cs
-    go partialInst _ _ _ = partialInst
+    go accum status override (_:cs) = go accum status override cs
+    go accum _ _ _ = accum
 
 parseInt :: CorruptInstructions -> (UnparsedInt, CorruptInstructions)
 parseInt = go ""
