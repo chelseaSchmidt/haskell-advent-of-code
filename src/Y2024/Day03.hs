@@ -38,18 +38,9 @@ parseInt = go ""
   where
     go :: PartialInt -> CorruptInstructions -> (UnparsedInt, CorruptInstructions)
     go partialInt [] = (partialInt, [])
-    go partialInt (c:cs) = case c of
-      '0' -> go (partialInt ++ [c]) cs
-      '1' -> go (partialInt ++ [c]) cs
-      '2' -> go (partialInt ++ [c]) cs
-      '3' -> go (partialInt ++ [c]) cs
-      '4' -> go (partialInt ++ [c]) cs
-      '5' -> go (partialInt ++ [c]) cs
-      '6' -> go (partialInt ++ [c]) cs
-      '7' -> go (partialInt ++ [c]) cs
-      '8' -> go (partialInt ++ [c]) cs
-      '9' -> go (partialInt ++ [c]) cs
-      _ -> (partialInt, c:cs)
+    go partialInt (c:cs)
+      | c `elem` "0123456789" = go (partialInt ++ [c]) cs
+      | otherwise = (partialInt, c:cs)
 
 toProduct :: Instruction -> Int
 toProduct i = read (fst i) * read (snd i)
