@@ -15,7 +15,7 @@ printY2024Day04Part1 = readInputFileByName "2024-04" >>= print . sum . map count
 printY2024Day04Part2 :: IO ()
 printY2024Day04Part2 = readInputFileByName "2024-04" >>= print . length . filter isCrossedXMAS . extract3x3Blocks . lines
 
--- Day 1
+-- Part 1
 
 toSequenceLists :: [Row] -> [Sequences]
 toSequenceLists [] = []
@@ -63,7 +63,7 @@ countMatches s = go 0 s + go 0 (reverse s)
     go count ('X':'M':'A':'S':cs) =  go (count + 1) cs
     go count (_:cs) = go count cs
 
--- Day 2
+-- Part 2
 
 extract3x3Blocks :: [Row] -> [Sequence]
 extract3x3Blocks rows = go rows rows
