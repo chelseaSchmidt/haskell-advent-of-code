@@ -75,8 +75,6 @@ extract3x3Blocks rows = go rows rows
     go origRows _ = go (map (drop 1) origRows) (map (drop 1) origRows)
 
 isCrossedXMAS :: Sequence -> Bool
-isCrossedXMAS ['M','S','A','M','S'] = True
-isCrossedXMAS ['S','M','A','S','M'] = True
-isCrossedXMAS ['M','M','A','S','S'] = True
-isCrossedXMAS ['S','S','A','M','M'] = True
-isCrossedXMAS _ = False
+isCrossedXMAS s
+  | s `elem` ["MSAMS", "SMASM", "MMASS", "SSAMM"] = True
+  | otherwise = False
